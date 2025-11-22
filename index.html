@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PerpusDigital | Ruang Baca Modern</title>
+    
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter (Simple & Bold) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Konfigurasi Tailwind Kustom -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Inter', 'sans-serif'], /* Mengganti serif menjadi Inter juga agar konsisten sederhana */
+                    },
+                    colors: {
+                        // Palet Warna Soft White & Soft Blue
+                        paper: {
+                            50: '#FDFBF7',  /* Cream Putih Paling Terang */
+                            100: '#F5F2EB', /* Cream Sedikit Gelap */
+                            200: '#E6E2D6', /* Border Lembut */
+                        },
+                        ink: {
+                            400: '#64748B', /* Teks Sekunder (Lebih Solid) */
+                            800: '#1E293B', /* Teks Utama */
+                            900: '#0F172A', /* Judul (Hampir Hitam) */
+                        },
+                        // Soft Blue
+                        softblue: {
+                            50: '#F0F9FF',
+                            100: '#E0F2FE',
+                            400: '#60A5FA', /* Sedikit lebih tegas */
+                            500: '#3B82F6', /* Biru Standard yang lebih jelas */
+                            600: '#2563EB',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'glow': '0 0 15px rgba(59, 130, 246, 0.4)',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Loading Screen & Animasi Buku */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #FDFBF7;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
+        }
+
+        /* Animasi Buku Terbuka CSS */
+        .book-loader {
+            --color: #3B82F6; /* Biru yang lebih tegas */
+            --duration: 6.8s;
+            width: 32px;
+            height: 12px;
+            position: relative;
+            margin: 32px 0 0 0;
+            zoom: 1.5;
+        }
+
+        .book-loader .inner {
+            width: 32px;
+            height: 12px;
+            position: relative;
+            transform-origin: 2px 2px;
+            transform: rotateZ(-90deg);
+            animation: book var(--duration) ease infinite;
+        }
+
+        .book-loader .inner .left,
+        .book-loader .inner .right {
+            width: 60px;
+            height: 4px;
+            top: 0;
+            border-radius: 2px;
+            background: var(--color);
+            position: absolute;
+        }
+
+        .book-loader .inner .left {
+            right: 28px;
+            transform-origin: 58px 2px;
+            transform: rotateZ(90deg);
+            animation: left var(--duration) ease infinite;
+        }
+
+        .book-loader .inner .right {
+            left: 28px;
+            transform-origin: 2px 2px;
+            transform: rotateZ(-90deg);
+            animation: right var(--duration) ease infinite;
+        }
+
+        .book-loader .inner .middle {
+            width: 32px;
+            height: 12px;
+            border: 4px solid var(--color);
+            border-top: 0;
+            border-radius: 0 0 9px 9px;
+            transform: translateY(2px);
+        }
+
+        .book-loader ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            position: absolute;
+            left: 50%;
+            top: 0;
+        }
+
+        .book-loader ul li {
+            height: 4px;
+            border-radius: 2px;
+            transform-origin: 100% 2px;
+            width: 48px;
+            right: 0;
+            top: -10px;
+            position: absolute;
+            background: var(--color);
+            transform: rotateZ(0deg) translateX(-18px);
+            animation-duration: var(--duration);
+            animation-timing-function: ease;
+            animation-iteration-count: infinite;
+        }
+
+        .book-loader ul li:nth-child(1) { animation-name: page-0; }
+        .book-loader ul li:nth-child(2) { animation-name: page-1; }
+        .book-loader ul li:nth-child(3) { animation-name: page-2; }
+        .book-loader ul li:nth-child(4) { animation-name: page-3; }
+        .book-loader ul li:nth-child(5) { animation-name: page-4; }
+        .book-loader ul li:nth-child(6) { animation-name: page-5; }
+        .book-loader ul li:nth-child(7) { animation-name: page-6; }
+        .book-loader ul li:nth-child(8) { animation-name: page-7; }
+        .book-loader ul li:nth-child(9) { animation-name: page-8; }
+        .book-loader ul li:nth-child(10) { animation-name: page-9; }
+        .book-loader ul li:nth-child(11) { animation-name: page-10; }
+        .book-loader ul li:nth-child(12) { animation-name: page-11; }
+        .book-loader ul li:nth-child(13) { animation-name: page-12; }
+        .book-loader ul li:nth-child(14) { animation-name: page-13; }
+        .book-loader ul li:nth-child(15) { animation-name: page-14; }
+        .book-loader ul li:nth-child(16) { animation-name: page-15; }
+        .book-loader ul li:nth-child(17) { animation-name: page-16; }
+        .book-loader ul li:nth-child(18) { animation-name: page-17; }
+
+        @keyframes page-0 { 4% { transform: rotateZ(0deg) translateX(-18px); } 13%, 54% { transform: rotateZ(180deg) translateX(-18px); } 63% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-1 { 5.86% { transform: rotateZ(0deg) translateX(-18px); } 14.74%, 55.86% { transform: rotateZ(180deg) translateX(-18px); } 64.74% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-2 { 7.72% { transform: rotateZ(0deg) translateX(-18px); } 16.48%, 57.72% { transform: rotateZ(180deg) translateX(-18px); } 66.48% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-3 { 9.58% { transform: rotateZ(0deg) translateX(-18px); } 18.22%, 59.58% { transform: rotateZ(180deg) translateX(-18px); } 68.22% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-4 { 11.44% { transform: rotateZ(0deg) translateX(-18px); } 19.96%, 61.44% { transform: rotateZ(180deg) translateX(-18px); } 69.96% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-5 { 13.3% { transform: rotateZ(0deg) translateX(-18px); } 21.7%, 63.3% { transform: rotateZ(180deg) translateX(-18px); } 71.7% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-6 { 15.16% { transform: rotateZ(0deg) translateX(-18px); } 23.44%, 65.16% { transform: rotateZ(180deg) translateX(-18px); } 73.44% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-7 { 17.02% { transform: rotateZ(0deg) translateX(-18px); } 25.18%, 67.02% { transform: rotateZ(180deg) translateX(-18px); } 75.18% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-8 { 18.88% { transform: rotateZ(0deg) translateX(-18px); } 26.92%, 68.88% { transform: rotateZ(180deg) translateX(-18px); } 76.92% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-9 { 20.74% { transform: rotateZ(0deg) translateX(-18px); } 28.66%, 70.74% { transform: rotateZ(180deg) translateX(-18px); } 78.66% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-10 { 22.6% { transform: rotateZ(0deg) translateX(-18px); } 30.4%, 72.6% { transform: rotateZ(180deg) translateX(-18px); } 80.4% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-11 { 24.46% { transform: rotateZ(0deg) translateX(-18px); } 32.14%, 74.46% { transform: rotateZ(180deg) translateX(-18px); } 82.14% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-12 { 26.32% { transform: rotateZ(0deg) translateX(-18px); } 33.88%, 76.32% { transform: rotateZ(180deg) translateX(-18px); } 83.88% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-13 { 28.18% { transform: rotateZ(0deg) translateX(-18px); } 35.62%, 78.18% { transform: rotateZ(180deg) translateX(-18px); } 85.62% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-14 { 30.04% { transform: rotateZ(0deg) translateX(-18px); } 37.36%, 80.04% { transform: rotateZ(180deg) translateX(-18px); } 87.36% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-15 { 31.9% { transform: rotateZ(0deg) translateX(-18px); } 39.1%, 81.9% { transform: rotateZ(180deg) translateX(-18px); } 89.1% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-16 { 33.76% { transform: rotateZ(0deg) translateX(-18px); } 40.84%, 83.76% { transform: rotateZ(180deg) translateX(-18px); } 90.84% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes page-17 { 35.62% { transform: rotateZ(0deg) translateX(-18px); } 42.58%, 85.62% { transform: rotateZ(180deg) translateX(-18px); } 92.58% { transform: rotateZ(0deg) translateX(-18px); } }
+        @keyframes left { 4% { transform: rotateZ(90deg); } 10%, 40% { transform: rotateZ(0deg); } 46%, 54% { transform: rotateZ(90deg); } 60%, 90% { transform: rotateZ(0deg); } 96% { transform: rotateZ(90deg); } }
+        @keyframes right { 4% { transform: rotateZ(-90deg); } 10%, 40% { transform: rotateZ(0deg); } 46%, 54% { transform: rotateZ(-90deg); } 60%, 90% { transform: rotateZ(0deg); } 96% { transform: rotateZ(-90deg); } }
+        @keyframes book { 4% { transform: rotateZ(-90deg); } 10%, 40% { transform: rotateZ(0deg); transform-origin: 2px 2px; } 40.01%, 59.99% { transform-origin: 30px 2px; } 46%, 54% { transform: rotateZ(90deg); } 60%, 90% { transform: rotateZ(0deg); transform-origin: 2px 2px; } 96% { transform: rotateZ(-90deg); } }
+
+        /* Utilitas Tambahan */
+        .glass-clean {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-paper-50 text-ink-800 font-sans antialiased overflow-x-hidden selection:bg-softblue-500 selection:text-white">
+
+    <!-- ===== LOADING SCREEN ===== -->
+    <div id="loading-screen">
+        <div class="book-loader">
+            <div class="inner">
+                <div class="left"></div>
+                <div class="middle"></div>
+                <div class="right"></div>
+            </div>
+            <ul>
+                <li></li><li></li><li></li><li></li><li></li><li></li>
+                <li></li><li></li><li></li><li></li><li></li><li></li>
+                <li></li><li></li><li></li><li></li><li></li><li></li>
+            </ul>
+        </div>
+        <h2 class="mt-8 text-ink-900 font-bold text-lg tracking-widest uppercase">Mempersiapkan Pustaka...</h2>
+    </div>
+
+    <!-- ===== Header / Navigasi (Simple Bold) ===== -->
+    <header class="fixed w-full top-0 z-40 transition-all duration-300" id="main-header">
+        <div class="absolute inset-0 glass-clean shadow-sm"></div>
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 relative">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-2 group">
+                    <div class="w-10 h-10 bg-softblue-500 rounded-lg flex items-center justify-center text-white shadow-soft group-hover:bg-softblue-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <!-- Judul menggunakan font sans bold -->
+                    <span class="text-2xl font-extrabold text-ink-900 tracking-tight">Perpus<span class="text-softblue-500">Digital</span></span>
+                </a>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-sm font-bold text-ink-800 hover:text-softblue-500 transition-colors">Beranda</a>
+                    <a href="#collection" class="text-sm font-bold text-ink-800 hover:text-softblue-500 transition-colors">Koleksi</a>
+                    <a href="#topics" class="text-sm font-bold text-ink-800 hover:text-softblue-500 transition-colors">Topik</a>
+                    <!-- Tombol Masuk -->
+                    <button id="login-btn" class="px-6 py-2.5 bg-softblue-500 text-white rounded-full font-bold text-sm hover:bg-softblue-600 transition-all shadow-glow transform hover:-translate-y-0.5 flex items-center gap-2">
+                        Masuk
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="hamburger-btn" class="text-ink-900 focus:outline-none p-2">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Dropdown -->
+            <div id="mobile-menu" class="md:hidden hidden mt-4 bg-white rounded-xl shadow-soft border border-paper-200 p-4 absolute left-4 right-4 top-full">
+                <a href="#" class="block py-3 px-4 text-ink-800 hover:bg-paper-100 hover:text-softblue-500 rounded-lg font-bold">Beranda</a>
+                <a href="#collection" class="block py-3 px-4 text-ink-800 hover:bg-paper-100 hover:text-softblue-500 rounded-lg font-bold">Koleksi</a>
+                <a href="#topics" class="block py-3 px-4 text-ink-800 hover:bg-paper-100 hover:text-softblue-500 rounded-lg font-bold">Topik</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ===== Hero Section ===== -->
+    <div class="relative pt-32 pb-20 sm:pt-40 sm:pb-24 overflow-hidden bg-paper-50">
+        <!-- Background Decor (Simple Circles) -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-softblue-400/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-blue-300/10 rounded-full blur-3xl"></div>
+
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <span class="inline-block py-1.5 px-4 rounded-full bg-softblue-500/10 border border-softblue-500/20 text-softblue-600 text-xs font-extrabold tracking-widest uppercase mb-6 animate-fade-in-up">
+                Eksklusif Untuk Pelajar Indonesia
+            </span>
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-ink-900 tracking-tight mb-6 leading-tight animate-fade-in-up" style="animation-delay: 0.1s">
+                Jelajahi Wawasan, <br class="hidden sm:block" />
+                <span class="text-softblue-500">Raih Masa Depan.</span>
+            </h1>
+            <p class="text-lg sm:text-xl text-ink-400 font-medium mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in-up" style="animation-delay: 0.2s">
+                Koleksi buku bisnis, finansial, dan pengembangan diri terbaik dunia. Dikurasi dengan cermat untuk membentuk pola pikir pemenang.
+            </p>
+            
+            <!-- Search Bar Modern (Simple Bold) -->
+            <div class="max-w-xl mx-auto animate-fade-in-up" style="animation-delay: 0.3s">
+                <div class="relative group">
+                    <div class="relative flex items-center bg-white rounded-full p-2 shadow-soft border border-paper-200 focus-within:border-softblue-400 transition-colors">
+                        <div class="pl-4 text-ink-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="search-input"
+                            placeholder="Cari judul buku atau penulis..." 
+                            class="w-full p-3 text-ink-800 placeholder-ink-400 bg-transparent border-none focus:ring-0 text-base font-semibold"
+                        >
+                        <button class="bg-ink-900 text-white px-6 py-2.5 rounded-full font-bold hover:bg-softblue-500 transition-colors shadow-lg">
+                            Cari
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Konten Utama ===== -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12 -mt-8 relative z-20">
+        
+        <!-- Section Topik -->
+        <div id="topics" class="mb-16 scroll-mt-32">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-ink-900">Jelajahi Topik</h2>
+                <div class="w-16 h-1.5 bg-softblue-500 mx-auto mt-2 rounded-full"></div>
+            </div>
+            <div id="topic-pills" class="flex flex-wrap justify-center gap-3">
+                <!-- Tombol Topik (JS) -->
+            </div>
+        </div>
+
+        <!-- Section Header Koleksi -->
+        <div id="collection" class="flex flex-col sm:flex-row justify-between items-end mb-10 border-b border-paper-200 pb-4 scroll-mt-32">
+            <div>
+                <h2 class="text-3xl font-extrabold text-ink-900">Koleksi Terpopuler</h2>
+                <p class="text-ink-400 mt-2 font-medium">Buku pilihan editor bulan ini.</p>
+            </div>
+            <div class="hidden sm:block">
+                <button onclick="displayBooks(books)" class="text-softblue-500 font-bold hover:text-softblue-600 transition-colors flex items-center gap-1 text-sm uppercase tracking-wide">
+                    Tampilkan Semua <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </button>
+            </div>
+        </div>
+            
+        <!-- Grid Buku -->
+        <div id="book-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-10">
+            <!-- Kartu buku di-generate via JS -->
+        </div>
+
+        <!-- State Kosong -->
+        <div id="no-results" class="hidden flex flex-col items-center justify-center py-20 text-center">
+            <div class="bg-paper-100 p-6 rounded-full mb-4">
+                <svg class="w-12 h-12 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold text-ink-900 mb-2">Buku tidak ditemukan</h3>
+            <p class="text-ink-400 max-w-md font-medium">Kami tidak dapat menemukan buku yang Anda cari. Coba kata kunci lain.</p>
+        </div>
+
+    </main>
+
+    <!-- ===== Footer ===== -->
+    <footer class="bg-white border-t border-paper-200 pt-16 pb-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="mb-8">
+                <span class="text-2xl font-extrabold text-ink-900">Perpus<span class="text-softblue-500">Digital</span></span>
+                <p class="text-ink-400 mt-4 max-w-lg mx-auto font-medium">Platform edukasi masa depan yang menghadirkan akses tanpa batas ke pengetahuan global.</p>
+            </div>
+            <div class="flex justify-center space-x-6 mb-8">
+                <a href="#" class="text-ink-400 hover:text-softblue-500 transition-colors"><span class="sr-only">Instagram</span><svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.468 2.527c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344-1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" /></svg></a>
+            </div>
+            <p class="text-ink-400 text-sm font-medium">&copy; 2025 PerpusDigital. Dibuat dengan <span class="text-softblue-500">dedikasi tinggi</span> untuk pelajar Indonesia.</p>
+        </div>
+    </footer>
+
+
+    <!-- ===== Modal untuk Detail Buku ===== -->
+    <div id="book-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden transition-all duration-300 opacity-0">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-ink-900/40 backdrop-blur-sm transition-opacity" id="modal-backdrop"></div>
+        
+        <!-- Content -->
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative z-10 transform scale-95 transition-all duration-300 border border-paper-200" id="modal-panel">
+            <button id="close-modal" class="absolute top-4 right-4 p-2 bg-paper-100 rounded-full text-ink-400 hover:bg-softblue-500 hover:text-white transition-colors z-20">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <div id="modal-content" class="p-0">
+                <!-- Content Injected via JS -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ===== JavaScript ===== -->
+    <script>
+        // Data buku dengan Cover Asli
+        const books = [
+            {
+                id: 1,
+                title: 'Zero to One',
+                author: 'Peter Thiel',
+                category: 'Bisnis',
+                cover: 'https://covers.openlibrary.org/b/isbn/9780804139298-L.jpg',
+                description: 'Catatan tentang startup, bagaimana membangun masa depan, dan menciptakan inovasi dari 0 ke 1. Buku legendaris untuk para visioner.',
+                fileUrl: 'https://morfene.com/021.pdf'
+            },
+            {
+                id: 2,
+                title: 'Rich Dad Poor Dad',
+                author: 'Robert T. Kiyosaki',
+                category: 'Finansial',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781612680194-L.jpg',
+                description: 'Buku wajib tentang literasi keuangan yang membedakan pola pikir orang kaya dan orang miskin terhadap uang.',
+                fileUrl: '#'
+            },
+            {
+                id: 3,
+                title: 'The Psychology of Money',
+                author: 'Morgan Housel',
+                category: 'Finansial',
+                cover: 'https://covers.openlibrary.org/b/isbn/9780857197689-L.jpg',
+                description: 'Pelajaran abadi mengenai kekayaan, ketamakan, dan kebahagiaan. Uang bukan hanya soal angka, tapi perilaku.',
+                fileUrl: '#'
+            },
+            {
+                id: 4,
+                title: 'Atomic Habits',
+                author: 'James Clear',
+                category: 'Produktivitas',
+                cover: 'https://covers.openlibrary.org/b/isbn/9780735211292-L.jpg',
+                description: 'Cara mudah dan terbukti untuk membentuk kebiasaan baik dan menghilangkan kebiasaan buruk demi kesuksesan bisnis.',
+                fileUrl: '#'
+            },
+            {
+                id: 5,
+                title: 'The Intelligent Investor',
+                author: 'Benjamin Graham',
+                category: 'Investasi',
+                cover: 'https://covers.openlibrary.org/b/isbn/9780060555665-L.jpg',
+                description: 'Kitab suci dalam berinvestasi saham. Mengajarkan konsep "Value Investing" yang aman dan jangka panjang.',
+                fileUrl: '#'
+            },
+            {
+                id: 6,
+                title: 'Think and Grow Rich',
+                author: 'Napoleon Hill',
+                category: 'Mindset',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781585424337-L.jpg',
+                description: 'Hasil riset terhadap 500 orang tersukses di dunia, merumuskan filosofi kesuksesan yang bisa ditiru siapa saja.',
+                fileUrl: '#'
+            },
+            {
+                id: 7,
+                title: 'Shoe Dog',
+                author: 'Phil Knight',
+                category: 'Bisnis',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781501135910-L.jpg',
+                description: 'Memoar pendiri Nike. Kisah jujur tentang jatuh bangun membangun brand sepatu terbesar di dunia.',
+                fileUrl: '#'
+            },
+            {
+                id: 8,
+                title: 'Principles',
+                author: 'Ray Dalio',
+                category: 'Manajemen',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781501124020-L.jpg',
+                description: 'Prinsip-prinsip hidup dan kerja dari salah satu investor tersukses di dunia, pendiri Bridgewater Associates.',
+                fileUrl: '#'
+            },
+            {
+                id: 9,
+                title: 'The Lean Startup',
+                author: 'Eric Ries',
+                category: 'Bisnis',
+                cover: 'https://covers.openlibrary.org/b/isbn/9780307887817-L.jpg',
+                description: 'Metodologi ilmiah untuk menjalankan startup dan meluncurkan produk lebih cepat dengan risiko kegagalan minimal.',
+                fileUrl: '#'
+            },
+            {
+                id: 10,
+                title: 'Start with Why',
+                author: 'Simon Sinek',
+                category: 'Kepemimpinan',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781591846444-L.jpg',
+                description: 'Mengapa beberapa pemimpin bisa menginspirasi? Kuncinya adalah memulai dari pertanyaan "Mengapa?".',
+                fileUrl: '#'
+            },
+            {
+                id: 11,
+                title: 'Good to Great',
+                author: 'Jim Collins',
+                category: 'Manajemen',
+                cover: 'https://covers.openlibrary.org/b/isbn/9780066620992-L.jpg',
+                description: 'Analisis mendalam tentang bagaimana perusahaan biasa-biasa saja bisa bertransformasi menjadi perusahaan hebat.',
+                fileUrl: '#'
+            },
+            {
+                id: 12,
+                title: 'The Science of Getting Rich',
+                author: 'Wallace D. Wattles',
+                category: 'Finansial',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781585426010-L.jpg',
+                description: 'Buku klasik tahun 1910 yang menginspirasi buku "The Secret". Panduan praktis menjadi kaya secara mental dan materi.',
+                fileUrl: '#'
+            },
+            {
+                id: 13,
+                title: 'The Art of War',
+                author: 'Sun Tzu',
+                category: 'Strategi',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781590302255-L.jpg',
+                description: 'Strategi militer kuno yang sangat relevan untuk strategi bisnis dan manajemen konflik modern.',
+                fileUrl: '#'
+            },
+            {
+                id: 14,
+                title: 'Influence',
+                author: 'Robert B. Cialdini',
+                category: 'Pemasaran',
+                cover: 'https://covers.openlibrary.org/b/isbn/9780061241895-L.jpg',
+                description: 'Psikologi persetujuan. Memahami kenapa orang bilang "ya" dan bagaimana menerapkannya dalam bisnis dan marketing.',
+                fileUrl: '#'
+            },
+            {
+                id: 15,
+                title: 'Blue Ocean Strategy',
+                author: 'W. Chan Kim',
+                category: 'Strategi',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781591396192-L.jpg',
+                description: 'Cara menciptakan ruang pasar baru yang belum tersentuh pesaing, sehingga kompetisi menjadi tidak relevan.',
+                fileUrl: '#'
+            },
+            {
+                id: 16,
+                title: 'As a Man Thinketh',
+                author: 'James Allen',
+                category: 'Psikologi',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781585425648-L.jpg',
+                description: 'Esai sastra klasik tentang bagaimana kekuatan pikiran membentuk karakter dan nasib seseorang.',
+                fileUrl: '#'
+            },
+            {
+                id: 17,
+                title: 'Deep Work',
+                author: 'Cal Newport',
+                category: 'Produktivitas',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781455586691-L.jpg',
+                description: 'Aturan untuk kesuksesan terfokus di dunia yang penuh gangguan. Sangat penting untuk profesional modern.',
+                fileUrl: '#'
+            },
+            {
+                id: 18,
+                title: 'Grit',
+                author: 'Angela Duckworth',
+                category: 'Psikologi',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781501111105-L.jpg',
+                description: 'Kekuatan hasrat dan kegigihan. Menjelaskan bahwa usaha lebih berharga daripada sekadar bakat alami.',
+                fileUrl: '#'
+            },
+            {
+                id: 19,
+                title: 'The Millionaire Next Door',
+                author: 'Thomas J. Stanley',
+                category: 'Finansial',
+                cover: 'https://covers.openlibrary.org/b/isbn/9781589795471-L.jpg',
+                description: 'Rahasia mengejutkan dari orang-orang kaya Amerika. Mereka seringkali hidup sederhana dan jauh dari kesan mewah.',
+                fileUrl: '#'
+            },
+            {
+                id: 20,
+                title: 'Rework',
+                author: 'Jason Fried',
+                category: 'Bisnis',
+                cover: 'https://covers.openlibrary.org/b/isbn/9780307463746-L.jpg',
+                description: 'Cara berbeda dalam menjalankan bisnis. Buku ini menantang norma kerja lama seperti rapat berlebihan dan perencanaan jangka panjang.',
+                fileUrl: '#'
+            }
+        ];
+
+        // Elemen DOM
+        const bookGrid = document.getElementById('book-grid');
+        const searchInput = document.getElementById('search-input');
+        const noResults = document.getElementById('no-results');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const modal = document.getElementById('book-modal');
+        const modalPanel = document.getElementById('modal-panel');
+        const modalContent = document.getElementById('modal-content');
+        const closeModal = document.getElementById('close-modal');
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const loadingScreen = document.getElementById('loading-screen');
+        const loginBtn = document.getElementById('login-btn');
+        const topicPillsContainer = document.getElementById('topic-pills');
+
+        // === Loading Screen Logic (Updated) ===
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                loadingScreen.style.visibility = 'hidden';
+            }, 2500); // Waktu loading disesuaikan dengan animasi buku
+        });
+
+        // === Login Simulation Logic ===
+        let isLoggedIn = false;
+        
+        loginBtn.addEventListener('click', () => {
+            if (!isLoggedIn) {
+                // Simulasi Login Berhasil
+                loginBtn.innerHTML = `
+                    <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    </div>
+                    <span>Halo, Pelajar</span>
+                `;
+                loginBtn.classList.remove('bg-softblue-500', 'hover:bg-softblue-600');
+                loginBtn.classList.add('bg-ink-800', 'hover:bg-ink-900'); // Warna tombol login berubah
+                isLoggedIn = true;
+                
+                alert("Selamat datang kembali! Akses Premium aktif.");
+            } else {
+                // Logout
+                const confirmLogout = confirm("Apakah Anda ingin keluar?");
+                if(confirmLogout) {
+                    loginBtn.innerText = "Masuk";
+                    loginBtn.classList.add('bg-softblue-500', 'hover:bg-softblue-600');
+                    loginBtn.classList.remove('bg-ink-800', 'hover:bg-ink-900');
+                    isLoggedIn = false;
+                }
+            }
+        });
+
+        /**
+         * Render Grid Buku (Simple Bold)
+         */
+        function displayBooks(bookList) {
+            bookGrid.innerHTML = '';
+
+            if (bookList.length === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+
+            bookList.forEach((book, index) => {
+                const bookCard = document.createElement('div');
+                bookCard.style.animationDelay = `${index * 50}ms`;
+                // Design card baru: Simple, Bold, Modern
+                bookCard.className = 'group flex flex-col cursor-pointer animate-fade-in-up';
+                bookCard.setAttribute('data-id', book.id);
+                
+                bookCard.innerHTML = `
+                    <div class="relative rounded-lg shadow-soft hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2 mb-4 bg-white aspect-[2/3] overflow-hidden border border-paper-200">
+                        <img src="${book.cover}" alt="${book.title}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                    </div>
+                    <div>
+                        <!-- Font judul dibuat extrabold sans -->
+                        <h3 class="font-extrabold text-ink-900 text-lg leading-tight mb-1 group-hover:text-softblue-500 transition-colors line-clamp-2">${book.title}</h3>
+                        <p class="text-sm text-ink-400 font-semibold">${book.author}</p>
+                        <span class="text-xs text-softblue-500 font-extrabold uppercase tracking-wider mt-1 block">${book.category}</span>
+                    </div>
+                `;
+                bookGrid.appendChild(bookCard);
+            });
+        }
+
+        function generateStars() {
+            return Array(5).fill('<svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.26.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.55-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>').join('');
+        }
+
+        /**
+         * Handle Search
+         */
+        function handleSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredBooks = books.filter(book => 
+                book.title.toLowerCase().includes(searchTerm) ||
+                book.author.toLowerCase().includes(searchTerm) ||
+                book.category.toLowerCase().includes(searchTerm)
+            );
+            displayBooks(filteredBooks);
+        }
+
+        /**
+         * Modal Logic (Simple Bold)
+         */
+        function openModal(bookId) {
+            const book = books.find(b => b.id == bookId);
+            if (!book) return;
+
+            modalContent.innerHTML = `
+                <div class="flex flex-col md:flex-row bg-paper-50 h-full">
+                    <div class="w-full md:w-5/12 p-8 flex items-center justify-center bg-paper-100/50">
+                        <div class="relative w-48 shadow-2xl rounded-lg border-2 border-white transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                             <img src="${book.cover}" alt="${book.title}" class="w-full h-auto object-cover rounded-lg">
+                        </div>
+                    </div>
+                    <div class="w-full md:w-7/12 p-8 md:p-12 overflow-y-auto">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-softblue-100 text-softblue-600 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-widest">${book.category}</span>
+                            <div class="flex text-yellow-400">
+                                ${generateStars()}
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-3xl md:text-4xl font-extrabold text-ink-900 mb-2 leading-tight">${book.title}</h3>
+                        <p class="text-xl text-ink-400 font-semibold mb-8">oleh ${book.author}</p>
+                        
+                        <div class="prose prose-stone mb-8">
+                            <h4 class="text-sm font-extrabold text-ink-900 mb-2 uppercase tracking-wider border-b-2 border-paper-200 pb-2">Sinopsis</h4>
+                            <p class="text-ink-800 leading-relaxed font-medium">${book.description}</p>
+                        </div>
+                        
+                        <div class="flex gap-4 mt-auto">
+                            <a href="${book.fileUrl}" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               class="flex-1 bg-ink-900 text-white text-center font-bold py-4 px-6 rounded-lg hover:bg-softblue-500 transition-all shadow-lg hover:shadow-softblue-500/30 flex items-center justify-center gap-3 group">
+                                <span class="group-hover:tracking-wide transition-all">BACA BUKU</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                modalPanel.classList.remove('scale-95');
+                modalPanel.classList.add('scale-100');
+            });
+        }
+
+        function closeModalFunc() {
+            modal.classList.add('opacity-0');
+            modalPanel.classList.remove('scale-100');
+            modalPanel.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // --- Event Listeners ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            displayBooks(books);
+            renderTopics(); 
+        });
+
+        searchInput.addEventListener('input', handleSearch);
+        
+        hamburgerBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        closeModal.addEventListener('click', closeModalFunc);
+        modalBackdrop.addEventListener('click', closeModalFunc);
+
+        bookGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('[data-id]');
+            if (card) {
+                const bookId = card.getAttribute('data-id');
+                openModal(bookId);
+            }
+        });
+
+        /**
+         * Fungsi Render Topik/Kategori (Pills Design Simple Bold)
+         */
+        function renderTopics() {
+            const categories = ['Semua', ...new Set(books.map(book => book.category))];
+            
+            topicPillsContainer.innerHTML = categories.map(cat => `
+                <button onclick="filterByTopic('${cat}')" 
+                        class="px-6 py-2 rounded-full text-sm font-bold transition-all border-2 border-paper-200 hover:border-softblue-500 hover:text-softblue-600 bg-white text-ink-400 shadow-sm topic-btn transform hover:-translate-y-0.5"
+                        data-category="${cat}">
+                    ${cat}
+                </button>
+            `).join('');
+            
+            setActiveTopic('Semua');
+        }
+
+        window.filterByTopic = function(category) {
+            setActiveTopic(category);
+            bookGrid.classList.add('opacity-50', 'blur-sm');
+            
+            setTimeout(() => {
+                if (category === 'Semua') {
+                    displayBooks(books);
+                } else {
+                    const filtered = books.filter(b => b.category === category);
+                    displayBooks(filtered);
+                }
+                bookGrid.classList.remove('opacity-50', 'blur-sm');
+            }, 300);
+        }
+
+        function setActiveTopic(category) {
+            const btns = document.querySelectorAll('.topic-btn');
+            btns.forEach(btn => {
+                if(btn.dataset.category === category) {
+                    btn.classList.remove('bg-white', 'text-ink-400', 'border-paper-200');
+                    btn.classList.add('bg-softblue-500', 'text-white', 'border-softblue-500', 'shadow-md');
+                } else {
+                    btn.classList.add('bg-white', 'text-ink-400', 'border-paper-200');
+                    btn.classList.remove('bg-softblue-500', 'text-white', 'border-softblue-500', 'shadow-md');
+                }
+            });
+        }
+        
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'bg-white/95');
+            } else {
+                header.classList.remove('py-2', 'bg-white/95');
+            }
+        });
+
+    </script>
+
+</body>
+</html>
